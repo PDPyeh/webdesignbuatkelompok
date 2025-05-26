@@ -1,0 +1,14 @@
+@startuml usecase
+actor Pengunjung
+
+rectangle Website {
+    Pengunjung --> (Lihat Intro)
+    Pengunjung --> (Lihat Portfolio)
+    Pengunjung --> (Lihat About)
+    Pengunjung --> (Lihat Contact)
+    Pengunjung --> (Kirim Pesan)
+    Pengunjung --> (Play/Mute Musik)
+    Pengunjung --> (Lihat Video Background)
+}
+
+@enduml

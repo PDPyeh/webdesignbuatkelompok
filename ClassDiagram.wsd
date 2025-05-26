@@ -1,0 +1,62 @@
+@startuml class
+
+class Website {
+  - header: Header
+  - main: Main
+  - footer: Footer
+  - bgVideo: Video
+  - bgMusic: Audio
+}
+
+class Header {
+  - logo: string
+  - navMenu: Nav
+  - socialIcons: List<Icon>
+}
+
+class Main {
+  - intro: Section
+  - portfolio: Section
+  - about: Section
+  - contact: Section
+}
+
+class Footer {
+  - copyright
+}
+
+class Section {
+  - id: string
+  - content: string
+}
+
+class Video {
+  - src: string
+  - autoplay: boolean
+  - muted: boolean
+  - loop: boolean
+}
+
+class Audio {
+  - src: string
+  - autoplay: boolean
+  - loop: boolean
+  - muted: boolean
+}
+
+class Form {
+  - name: string
+  - email: string
+  - message: string
+  + submit(): void
+}
+
+Website --> Header
+Website --> Main
+Website --> Footer
+Website --> Video
+Website --> Audio
+Main --> Section
+ContactForm --> Form
+
+@enduml

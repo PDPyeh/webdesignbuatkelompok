@@ -1,4 +1,4 @@
-@startuml class
+@startuml
 
 class Website {
   - header: Header
@@ -6,6 +6,7 @@ class Website {
   - footer: Footer
   - bgVideo: Video
   - bgMusic: Audio
+  - loginPage: LoginPage
 }
 
 class Header {
@@ -19,10 +20,6 @@ class Main {
   - portfolio: Section
   - about: Section
   - contact: Section
-}
-
-class Footer {
-  - copyright
 }
 
 class Section {
@@ -51,12 +48,34 @@ class Form {
   + submit(): void
 }
 
+class Admin {
+  - username: string
+  - password: string
+  + login(): boolean
+  + editContent(): void
+  + viewMessages(): List<Message>
+}
+
+class LoginPage {
+  - form: LoginForm
+  + authenticate(): Admin
+}
+
+class LoginForm {
+  - username: string
+  - password: string
+  + submit(): void
+}
+
 Website --> Header
 Website --> Main
 Website --> Footer
 Website --> Video
 Website --> Audio
+Website --> LoginPage
 Main --> Section
 ContactForm --> Form
+LoginPage --> LoginForm
+Admin --> Website
 
 @enduml

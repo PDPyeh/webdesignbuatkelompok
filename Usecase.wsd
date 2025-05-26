@@ -1,5 +1,6 @@
-@startuml usecase
+@startuml
 actor Pengunjung
+actor Admin
 
 rectangle Website {
     Pengunjung --> (Lihat Intro)
@@ -9,6 +10,11 @@ rectangle Website {
     Pengunjung --> (Kirim Pesan)
     Pengunjung --> (Play/Mute Musik)
     Pengunjung --> (Lihat Video Background)
-}
 
+    Admin --> (Login)
+    (Login) --> (Kelola Konten)
+    (Kelola Konten) --> (Edit Portfolio)
+    (Kelola Konten) --> (Edit About)
+    (Kelola Konten) --> (Lihat Pesan Masuk)
+}
 @enduml

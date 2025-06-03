@@ -1,20 +1,15 @@
 @startuml
+left to right direction
+
 actor Pengunjung
-actor Admin
 
 rectangle Website {
-    Pengunjung --> (Lihat Intro)
-    Pengunjung --> (Lihat Portfolio)
-    Pengunjung --> (Lihat About)
-    Pengunjung --> (Lihat Contact)
-    Pengunjung --> (Kirim Pesan)
-    Pengunjung --> (Play/Mute Musik)
-    Pengunjung --> (Lihat Video Background)
+    Pengunjung -- (Intro)
+    Pengunjung -- (Members)
+    Pengunjung -- (About)
+    Pengunjung -- (Contact)
+    Pengunjung -- (Play/Mute Musik)
+    (Contact) <.. (Kirim Pesan) : <<extend>>
 
-    Admin --> (Login)
-    (Login) --> (Kelola Konten)
-    (Kelola Konten) --> (Edit Portfolio)
-    (Kelola Konten) --> (Edit About)
-    (Kelola Konten) --> (Lihat Pesan Masuk)
 }
 @enduml

@@ -6,6 +6,8 @@ const path = require("path");
 const app = express();
 const port = 3000;
 const db = new sqlite3.Database("./db.sqlite");
+const multer = require("multer");
+const upload = multer({ dest: "uploads/" }); // atau atur storage sendiri
 
 app.use(cors());
 app.use(express.json());
@@ -30,6 +32,12 @@ app.get("/api/members", (req, res) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json(rows);
   });
+});
+
+app.post("/api/members", upload.single("image"), (req, res) => {
+  const { id, name, quote, details } = req.body;
+  const imagePath = req.file.path;
+  // simpan data sesuai kebutuhan kamu
 });
 
 // Tambah member
@@ -65,6 +73,11 @@ app.delete("/api/members/:id", (req, res) => {
     res.json({ message: "Member dihapus" });
   });
 });
+
+app.get("/", (req, res) => {
+  res.redirect("/login.html");
+});
+
 
 app.listen(port, () => {
   console.log(`Server ready at http://localhost:${port}`);

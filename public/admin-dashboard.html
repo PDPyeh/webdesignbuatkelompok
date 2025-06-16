@@ -109,7 +109,7 @@
             ×
           </button>
         </div>
-        <form id="memberForm">
+        <form id="memberForm" enctype="multipart/form-data">
           <input type="hidden" id="memberEditId" name="memberEditId" />
           <div class="mb-4">
             <label
@@ -145,15 +145,15 @@
             <label
               for="memberImage"
               class="block text-sm font-medium mb-1 text-gray-300"
-              >URL Gambar (cth: assets/namafile.gif)</label
+              >Upload Gambar</label
             >
             <input
-              type="text"
+              type="file"
               id="memberImage"
               name="memberImage"
+              accept="image/*"
               required
-              class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md placeholder-gray-500"
-              placeholder="Path ke gambar member"
+              class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white"
             />
           </div>
           <div class="mb-4">
@@ -346,34 +346,35 @@
 
         const name = memberNameInput.value.trim();
         const quote = memberQuoteInput.value.trim();
-        const image = memberImageInput.value.trim();
         const details = memberDetailsInput.value.trim();
+        const imageFile = memberImageInput.files[0]; // ambil file, bukan .value
 
-        if (!name || !quote || !image || !details) {
-          alert("Semua field harus diisi!");
+        if (!name || !quote || !details || !imageFile) {
+          alert("Semua field harus diisi, termasuk gambar!");
           return;
         }
 
-        const data = {
-          id: currentEditId || Date.now().toString(),
-          name, quote, image, details
-        };
+        const formData = new FormData();
+        formData.append("name", name);
+        formData.append("quote", quote);
+        formData.append("details", details);
+        formData.append("image", imageFile);
+        if (currentEditId) formData.append("id", currentEditId);
 
-        const url = currentEditId ? `/api/members/${currentEditId}` : "/api/members";
-        const method = currentEditId ? "PUT" : "POST";
+        const method = "POST";
+        const url = currentEditId ? `/api/members/edit/${currentEditId}` : "/api/members";
 
         const res = await fetch(url, {
           method,
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data)
+          body: formData,
         });
 
         const result = await res.json();
         alert(result.message);
-
         loadMembersDataFromStorage();
         closeModalForm();
       });
+
 
       window.confirmDeleteMember = async function (memberId) {
         const memberToDelete = membersData.find((m) => m.id === memberId);

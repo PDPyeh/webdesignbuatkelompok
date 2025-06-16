@@ -367,13 +367,19 @@
         },
       ];
 
-      function getMembersData() {
-        const storedMembers = localStorage.getItem("membersData"); // Kunci harus sama
-        if (storedMembers) {
-          return JSON.parse(storedMembers);
-        }
-        return defaultMembers;
-      }
+      async function getMembersData() {
+    try {
+      const response = await fetch("/api/members");
+      const data = await response.json();
+      console.log("Data dari server:", data); // <- DEBUG
+      localStorage.setItem("membersData", JSON.stringify(data));
+      return data;
+    } catch (err) {
+      console.error("Fetch error:", err);
+      const fallback = localStorage.getItem("membersData");
+      if (fallback) return JSON.parse(fallback);
+      return defaultMembers;
+    } }
 
       function renderMembersToDOM(membersToRender) {
         const memberGrid = document.getElementById("memberGrid");
@@ -422,8 +428,52 @@
         });
       }
 
+document.addEventListener("DOMContentLoaded", async () => {
+  const membersData = await getMembersData(); // ✅ tunggu data diambil dulu
+  renderMembersToDOM(membersData); // ✅ baru render pas data udah siap
+
+  // Setelah card selesai dirender, baru ambil ulang elemen DOM-nya
+  const memberCards = document.querySelectorAll(".member-card");
+  const modal = document.getElementById("memberModal");
+  const closeModalBtn = document.getElementById("closeModalBtn");
+
+  const modalMemberName = document.getElementById("modalMemberName");
+  const modalMemberImage = document.getElementById("modalMemberImage");
+  const modalMemberQuote = document.getElementById("modalMemberQuote");
+  const modalMemberDetails = document.getElementById("modalMemberDetails");
+
+  if (
+    !modal ||
+    !closeModalBtn ||
+    !modalMemberName ||
+    !modalMemberImage ||
+    !modalMemberQuote ||
+    !modalMemberDetails
+  ) {
+    console.error("Salah satu elemen modal tidak ditemukan!");
+    return;
+  }
+
+  // Pasang event listener setelah elemen member-card dirender
+  memberCards.forEach((card) => {
+    card.addEventListener("click", () => {
+      modalMemberName.textContent = card.dataset.memberName;
+      modalMemberImage.src = card.dataset.memberImage;
+      modalMemberQuote.textContent = card.dataset.memberQuote;
+      modalMemberDetails.textContent = card.dataset.memberDetails;
+
+      modal.classList.remove("hidden");
+    });
+  });
+
+  closeModalBtn.addEventListener("click", () => {
+    modal.classList.add("hidden");
+  });
+});
+
+
       // Member Modal Functionality
-      document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", () => {
         // Initialize members data
         const membersData = getMembersData();
         renderMembersToDOM(membersData); // Render data dari localStorage

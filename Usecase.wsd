@@ -2,6 +2,7 @@
 left to right direction
 
 actor Pengunjung
+actor Admin
 
 rectangle Website {
     Pengunjung -- (Intro)
@@ -9,7 +10,11 @@ rectangle Website {
     Pengunjung -- (About)
     Pengunjung -- (Contact)
     Pengunjung -- (Play/Mute Musik)
-    (Contact) <.. (Kirim Pesan) : <<extend>>
 
+    Admin -- (Login)
+    (Login) --> (Tambah Member) : <<include>>
+    (Login) --> (Hapus Member) : <<include>>
+    (Login) --> (Edit Member) : <<include>>
 }
+
 @enduml

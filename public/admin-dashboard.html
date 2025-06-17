@@ -11,12 +11,14 @@
         color: #e5e7eb; /* text-gray-200 */
       }
       .content-area {
-        min-height: calc(100vh - 200px);
+        min-height: calc(
+          100vh - 128px
+        ); /* Tinggi viewport dikurangi tinggi header & footer */
       }
-      /* Style untuk daftar member admin */
       .member-item-admin {
         background-color: #1f2937;
         border: 1px solid #374151;
+        transition: background-color 0.2s;
       }
       .member-item-admin:hover {
         background-color: #374151;
@@ -152,7 +154,6 @@
               id="memberImage"
               name="memberImage"
               accept="image/*"
-              required
               class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white"
             />
           </div>
@@ -192,62 +193,12 @@
     </div>
 
     <script>
-      const defaultMembers = [
-        {
-          id: "1",
-          name: "Rifqy",
-          quote: "'lah kirain pake ppt'",
-          image: "assets/dawg-skull-emoji.gif",
-          details:
-            "Seorang yang penuh semangat dan selalu ingin tahu akan hal baru. Suka bereksperimen dengan teknologi terkini.",
-        },
-        {
-          id: "2",
-          name: "Damar",
-          quote: "'Throughout Heaven and Earth, I alone am honored'",
-          image: "assets/jjk-freaky.gif",
-          details:
-            "Pemikir strategis dengan pandangan yang mendalam. Kutipan favoritnya mencerminkan kepercayaan dirinya.",
-        },
-        {
-          id: "3",
-          name: "Alfian",
-          quote: "'im the man in the box 🥀'",
-          image: "assets/gus-gusfring.gif",
-          details:
-            "Dikenal dengan gayanya yang unik dan terkadang misterius. Selalu punya perspektif yang menarik.",
-        },
-        {
-          id: "4",
-          name: "Dipa",
-          quote: "'Ugh'",
-          image: "assets/rigbycat-rigby.gif",
-          details:
-            "Singkat, padat, dan jelas. Pribadi yang efisien dan tidak suka bertele-tele, seperti kutipannya.",
-        },
-        {
-          id: "5",
-          name: "Imron",
-          quote: "'nothin.'",
-          image: "assets/wielino.png",
-          details:
-            "Tenang namun penuh dengan ide-ide brilian. Lebih suka tindakan nyata daripada banyak bicara.",
-        },
-        {
-          id: "6",
-          name: "Abiem",
-          quote: "'Yang Sudah Blh Pulang.'",
-          image: "assets/budi.png",
-          details:
-            "Efisien dan selalu to the point. Fokus pada penyelesaian tugas dengan cepat dan tepat.",
-        },
-      ];
-
       let membersData = [];
-      let currentEditId = null; // Menyimpan ID member yang sedang diedit
+      let currentEditId = null;
 
+      // Mengambil elemen-elemen DOM
       const memberFormModal = document.getElementById("memberFormModal");
-      const modalTitleElement = document.getElementById("modalTitle"); // Ganti nama variabel agar tidak konflik
+      const modalTitleElement = document.getElementById("modalTitle");
       const memberForm = document.getElementById("memberForm");
       const memberEditIdInput = document.getElementById("memberEditId");
       const memberNameInput = document.getElementById("memberName");
@@ -264,16 +215,20 @@
         "cancelMemberFormBtn"
       );
 
-      async function loadMembersDataFromStorage() {
-        const res = await fetch("/api/members");
-        membersData = await res.json();
-        renderAdminMemberList();
+      // Memuat data member dari server
+      async function loadMembersDataFromServer() {
+        try {
+          const res = await fetch("/api/members");
+          if (!res.ok) throw new Error("Gagal mengambil data dari server");
+          membersData = await res.json();
+          renderAdminMemberList();
+        } catch (err) {
+          console.error(err);
+          alert("Tidak dapat memuat data member. Pastikan server berjalan.");
+        }
       }
 
-      function saveMembersDataToStorage() {
-        localStorage.setItem("membersData", JSON.stringify(membersData));
-      }
-
+      // Merender daftar member ke halaman
       function renderAdminMemberList() {
         const memberListContainer = document.getElementById(
           "adminMemberListContainer"
@@ -289,43 +244,65 @@
           item.className =
             "member-item-admin flex justify-between items-center p-3 md:p-4 rounded-lg shadow";
           item.innerHTML = `
-                    <div class="flex-grow overflow-hidden pr-2">
-                        <h4 class="text-md md:text-lg font-semibold text-white truncate" title="${member.name}">${member.name}</h4>
-                        <p class="text-xs md:text-sm text-gray-400 truncate" title="${member.quote}">${member.quote}</p>
-                    </div>
-                    <div class="flex-shrink-0 space-x-1 md:space-x-2">
-                        <button onclick="window.openEditForm('${member.id}')" class="text-yellow-400 hover:text-yellow-300 font-medium py-1 px-2 md:px-3 text-xs md:text-sm rounded bg-yellow-600 bg-opacity-20 hover:bg-opacity-30">Edit</button>
-                        <button onclick="window.confirmDeleteMember('${member.id}')" class="text-red-400 hover:text-red-300 font-medium py-1 px-2 md:px-3 text-xs md:text-sm rounded bg-red-600 bg-opacity-20 hover:bg-opacity-30">Hapus</button>
-                    </div>
-                `;
+            <div class="flex items-center flex-grow overflow-hidden pr-2">
+                <img src="${member.image}" alt="${member.name}" class="h-10 w-10 rounded-full mr-4 object-cover flex-shrink-0">
+                <div class="overflow-hidden">
+                  <h4 class="text-md md:text-lg font-semibold text-white truncate" title="${member.name}">${member.name}</h4>
+                  <p class="text-xs md:text-sm text-gray-400 truncate" title="${member.quote}">${member.quote}</p>
+                </div>
+            </div>
+            <div class="flex-shrink-0 space-x-1 md:space-x-2">
+                <button onclick="window.openEditForm('${member.id}')" class="text-yellow-400 hover:text-yellow-300 font-medium py-1 px-2 md:px-3 text-xs md:text-sm rounded bg-yellow-600 bg-opacity-20 hover:bg-opacity-30">Edit</button>
+                <button onclick="window.confirmDeleteMember('${member.id}')" class="text-red-400 hover:text-red-300 font-medium py-1 px-2 md:px-3 text-xs md:text-sm rounded bg-red-600 bg-opacity-20 hover:bg-opacity-30">Hapus</button>
+            </div>
+          `;
           memberListContainer.appendChild(item);
         });
       }
 
+      // Membuka modal untuk menambah
       function openModalForAdd() {
-        currentEditId = null; // Pastikan mode tambah
+        currentEditId = null;
         memberForm.reset();
-        memberEditIdInput.value = ""; // Kosongkan ID
+        memberEditIdInput.value = "";
         modalTitleElement.textContent = "Tambah Member Baru";
-        document.getElementById("saveMemberButton").textContent =
-          "Simpan Member";
+        document.getElementById("saveMemberButton").textContent = "Simpan";
+        memberImageInput.required = true;
+
+        const existingHelpText = document.getElementById("imageHelpText");
+        if (existingHelpText) existingHelpText.remove();
+
         memberFormModal.classList.remove("hidden");
       }
 
-      // Dibuat global agar bisa diakses dari HTML onclick
+      // Membuka modal untuk edit
       window.openEditForm = function (memberId) {
-        const memberToEdit = membersData.find((m) => m.id === memberId);
+        const memberToEdit = membersData.find(
+          (m) => m.id.toString() === memberId.toString()
+        );
         if (memberToEdit) {
           currentEditId = memberId;
-          memberForm.reset(); // Reset dulu untuk membersihkan state sebelumnya
+          memberForm.reset();
+
           memberEditIdInput.value = memberToEdit.id;
           memberNameInput.value = memberToEdit.name;
           memberQuoteInput.value = memberToEdit.quote;
-          memberImageInput.value = memberToEdit.image;
           memberDetailsInput.value = memberToEdit.details;
+
           modalTitleElement.textContent = "Edit Member";
           document.getElementById("saveMemberButton").textContent =
             "Update Member";
+          memberImageInput.required = false;
+
+          const existingHelpText = document.getElementById("imageHelpText");
+          if (existingHelpText) existingHelpText.remove();
+
+          const helpText = document.createElement("small");
+          helpText.id = "imageHelpText";
+          helpText.className = "text-gray-400 text-xs mt-1 block";
+          helpText.textContent = "Kosongkan jika tidak ingin mengubah gambar.";
+          memberImageInput.parentElement.appendChild(helpText);
+
           memberFormModal.classList.remove("hidden");
         } else {
           alert("Member tidak ditemukan!");
@@ -334,60 +311,81 @@
 
       function closeModalForm() {
         memberFormModal.classList.add("hidden");
-        currentEditId = null; // Reset ID yang diedit saat modal ditutup
+        currentEditId = null;
+        memberForm.reset();
       }
 
       openAddMemberModalBtn.addEventListener("click", openModalForAdd);
       closeMemberFormModalBtn.addEventListener("click", closeModalForm);
       cancelMemberFormBtn.addEventListener("click", closeModalForm);
 
+      // Event listener untuk submit form (Tambah atau Edit)
       memberForm.addEventListener("submit", async function (event) {
         event.preventDefault();
 
-        const name = memberNameInput.value.trim();
-        const quote = memberQuoteInput.value.trim();
-        const details = memberDetailsInput.value.trim();
-        const imageFile = memberImageInput.files[0]; // ambil file, bukan .value
+        const formData = new FormData(memberForm);
 
-        if (!name || !quote || !details || !imageFile) {
-          alert("Semua field harus diisi, termasuk gambar!");
-          return;
+        let url = "/api/members";
+        let method = "POST";
+
+        if (currentEditId) {
+          url = `/api/members/${currentEditId}`;
+          method = "PUT";
         }
 
-        const formData = new FormData();
-        formData.append("name", name);
-        formData.append("quote", quote);
-        formData.append("details", details);
-        formData.append("image", imageFile);
-        if (currentEditId) formData.append("id", currentEditId);
+        const imageFile = memberImageInput.files[0];
+        if (currentEditId && !imageFile) {
+          formData.delete("memberImage");
+        }
 
-        const method = "POST";
-        const url = currentEditId ? `/api/members/edit/${currentEditId}` : "/api/members";
+        try {
+          const response = await fetch(url, {
+            method: method,
+            body: formData,
+          });
 
-        const res = await fetch(url, {
-          method,
-          body: formData,
-        });
+          const result = await response.json();
 
-        const result = await res.json();
-        alert(result.message);
-        loadMembersDataFromStorage();
-        closeModalForm();
+          if (!response.ok) {
+            throw new Error(result.message || "Terjadi kesalahan pada server.");
+          }
+
+          alert(result.message);
+          loadMembersDataFromServer();
+          closeModalForm();
+        } catch (err) {
+          console.error("Gagal menyimpan:", err);
+          alert("Gagal menyimpan: " + err.message);
+        }
       });
 
-
+      // Konfirmasi dan hapus member
       window.confirmDeleteMember = async function (memberId) {
-        const memberToDelete = membersData.find((m) => m.id === memberId);
-        if (!memberToDelete) return alert("Member tidak ditemukan!");
+        const memberToDelete = membersData.find(
+          (m) => m.id.toString() === memberId.toString()
+        );
+        if (!memberToDelete) return;
 
-        if (confirm(`Apakah Anda yakin ingin menghapus member "${memberToDelete.name}"?`)) {
-          const res = await fetch(`/api/members/${memberId}`, { method: "DELETE" });
-          const result = await res.json();
-          alert(result.message);
-          loadMembersDataFromStorage();
+        if (
+          confirm(
+            `Apakah Anda yakin ingin menghapus member "${memberToDelete.name}"?`
+          )
+        ) {
+          try {
+            const res = await fetch(`/api/members/${memberId}`, {
+              method: "DELETE",
+            });
+            const result = await res.json();
+            if (!res.ok) throw new Error(result.message);
+            alert(result.message);
+            loadMembersDataFromServer();
+          } catch (err) {
+            alert("Gagal menghapus: " + err.message);
+          }
         }
       };
 
+      // Inisialisasi Halaman
       document.addEventListener("DOMContentLoaded", () => {
         if (localStorage.getItem("isAdminLoggedIn") !== "true") {
           alert("Anda harus login untuk mengakses halaman ini!");
@@ -398,16 +396,14 @@
           new Date().getFullYear();
         document
           .getElementById("logoutButton")
-          .addEventListener("click", function (e) {
+          .addEventListener("click", (e) => {
             e.preventDefault();
             localStorage.removeItem("isAdminLoggedIn");
             alert("Anda telah berhasil logout.");
             window.location.href = "login.html";
           });
-        loadMembersDataFromStorage();
+        loadMembersDataFromServer();
       });
     </script>
   </body>
 </html>
-
-
